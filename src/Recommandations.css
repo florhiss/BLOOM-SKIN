@@ -1,0 +1,97 @@
+.reco {
+  --accent: #b784b7;
+  --accent-fonce: #8e5a8e;
+  --fond-doux: #f6eef6;
+  --texte: #3b2f3b;
+  margin-top: 8px;
+  color: var(--texte);
+}
+
+.reco h2 {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 24px;
+  color: var(--texte);
+  margin: 32px 0 12px;
+}
+
+.reco h3 {
+  font-size: 18px;
+  color: var(--texte);
+  margin: 24px 0 10px;
+}
+
+.reco-periode {
+  margin: 0 0 14px;
+  font-size: 14px;
+  color: var(--accent-fonce);
+}
+
+.reco-vide {
+  color: var(--accent-fonce);
+}
+
+.reco-chiffres {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin: 0 0 18px;
+}
+
+.reco-chiffres div {
+  padding: 12px 8px;
+  border-radius: 14px;
+  background: var(--fond-doux);
+  text-align: center;
+}
+
+.reco-chiffres dt {
+  font-size: 13px;
+  color: var(--accent-fonce);
+}
+
+.reco-chiffres dd {
+  margin: 4px 0 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.reco-conseils,
+.reco-produits {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.reco-conseils li {
+  padding: 14px;
+  border-left: 4px solid var(--accent);
+  border-radius: 0 14px 14px 0;
+  background: var(--fond-doux);
+}
+
+.reco-conseils p {
+  margin: 6px 0 0;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.reco-produits li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+}
+
+.reco-produits small {
+  color: var(--accent-fonce);
+}
+
+.reco-avertissement {
+  margin-top: 20px;
+  font-size: 13px;
+  color: var(--accent-fonce);
+}

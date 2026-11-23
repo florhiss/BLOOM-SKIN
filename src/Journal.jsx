@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import "./Journal.css";
+import Recommandations from "./Recommandations";
 
 const ETATS = [
   { valeur: 1, emoji: "😣", label: "Difficile" },
@@ -160,6 +161,8 @@ export default function Journal() {
           );
         })}
       </ul>
+
+      <Recommandations entrees={entrees} />
     </section>
   );
 }
