@@ -1,6 +1,8 @@
 
 import { useState } from 'react'
 import './App.css'
+import Routine from'./Routine'
+import Journal from'./Journal'
 
 const products = [
   { name: 'Gel nettoyant doux', type: 'Nettoyant', description: 'Nettoie délicatement la peau.', icon: '🫧' },
@@ -137,7 +139,8 @@ function App() {
           </>
         )}
 
-        {page === 'Routines' && (
+        {page === 'Routines' && <Routine />}
+        {false  && page === 'Routines'  &&(
           <section className="content-section">
             <span className="eyebrow">YOUR DAILY SELF-CARE</span>
             <h1>Ma routine skincare 🌷</h1>
@@ -233,7 +236,8 @@ function App() {
           </section>
         )}
 
-        {page === 'Mon suivi' && (
+{page === 'Mon suivi' && <Journal />}
+{false && page === 'Mon suivi' && (
           <section className="content-section">
             <span className="eyebrow">MY SKIN JOURNAL</span>
             <h1>Mon évolution 💗</h1>

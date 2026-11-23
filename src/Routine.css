@@ -1,0 +1,148 @@
+.routine {
+  --accent: #b784b7;
+  --accent-fonce: #8e5a8e;
+  --fond-doux: #f6eef6;
+  --texte: #3b2f3b;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 32px 7%;
+  color: var(--texte);
+}
+
+.routine h1 {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 34px;
+  margin-bottom: 20px;
+}
+
+.routine-onglets {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.routine-onglets button {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--accent-fonce);
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.routine-onglets button.actif {
+  background: var(--accent);
+  color: #fff;
+}
+
+.routine-barre {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--fond-doux);
+  overflow: hidden;
+}
+
+.routine-barre-remplie {
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.3s ease;
+}
+
+.routine-progression {
+  margin: 8px 0 20px;
+  font-size: 14px;
+  color: var(--accent-fonce);
+}
+
+.routine-liste {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 20px;
+  display: grid;
+  gap: 10px;
+}
+
+.routine-liste li {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  padding: 14px;
+  border-radius: 14px;
+  background: var(--fond-doux);
+}
+
+.routine-liste li label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 17px;
+  cursor: pointer;
+}
+
+.routine-liste li input[type="checkbox"] {
+  width: 22px;
+  height: 22px;
+  accent-color: var(--accent-fonce);
+}
+
+.routine-liste li.fait label span {
+  text-decoration: line-through;
+  opacity: 0.55;
+}
+
+.routine-produit {
+  grid-column: 1 / 2;
+  padding: 8px 10px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 14px;
+}
+
+.routine-suppr {
+  grid-row: 1 / 3;
+  grid-column: 2;
+  align-self: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--accent-fonce);
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.routine-vide {
+  color: var(--accent-fonce);
+}
+
+.routine-ajout {
+  display: flex;
+  gap: 8px;
+}
+
+.routine-ajout input {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  font-size: 16px;
+}
+
+.routine-ajout button {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 999px;
+  background: var(--accent-fonce);
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.routine :focus-visible {
+  outline: 2px solid var(--accent-fonce);
+  outline-offset: 2px;
+}
