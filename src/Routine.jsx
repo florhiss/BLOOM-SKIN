@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import "./Routine.css";
+import { supabase } from "./supabaseClient";
 
 const DEFAULTS = {
   matin: [
@@ -18,28 +19,62 @@ const DEFAULTS = {
 
 const aujourdhui = () => new Date().toISOString().slice(0, 10);
 
-function charger(cle, defaut) {
-  try {
-    const v = localStorage.getItem(cle);
-    return v ? JSON.parse(v) : defaut;
-  } catch {
-    return defaut;
-  }
+// On ne garde que les 60 derniers jours pour que la sauvegarde reste légère.
+function garderRecents(faits) {
+  const limite = new Date();
+  limite.setDate(limite.getDate() - 60);
+  const debut = limite.toISOString().slice(0, 10);
+  return Object.fromEntries(Object.entries(faits).filter(([date]) => date >= debut));
 }
 
 export default function Routine() {
   const [moment, setMoment] = useState("matin");
-  const [routines, setRoutines] = useState(() => charger("bloom-routines", DEFAULTS));
-  const [faits, setFaits] = useState(() => charger("bloom-faits", {}));
+  const [routines, setRoutines] = useState(DEFAULTS);
+  const [faits, setFaits] = useState({});
   const [nouvelle, setNouvelle] = useState("");
+  const [pret, setPret] = useState(false);
+  const [erreur, setErreur] = useState("");
 
+  // Chargement depuis la base
   useEffect(() => {
-    localStorage.setItem("bloom-routines", JSON.stringify(routines));
-  }, [routines]);
+    let actif = true;
 
+    async function charger() {
+      const { data, error } = await supabase.from("routines").select("etapes, faits").maybeSingle();
+      if (!actif) return;
+      if (error) {
+        setErreur("Impossible de charger ta routine. Vérifie ta connexion.");
+        return;
+      }
+      if (data?.etapes?.matin && data?.etapes?.soir) setRoutines(data.etapes);
+      if (data?.faits) setFaits(data.faits);
+      setPret(true);
+    }
+
+    charger();
+    return () => {
+      actif = false;
+    };
+  }, []);
+
+  // Sauvegarde automatique, un court instant après chaque changement
   useEffect(() => {
-    localStorage.setItem("bloom-faits", JSON.stringify(faits));
-  }, [faits]);
+    if (!pret) return;
+
+    const minuteur = setTimeout(async () => {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const userId = sessionData.session?.user.id;
+      if (!userId) return;
+
+      const { error } = await supabase
+        .from("routines")
+        .upsert({ user_id: userId, etapes: routines, faits: garderRecents(faits) }, { onConflict: "user_id" });
+
+      setErreur(error ? "Sauvegarde impossible pour le moment." : "");
+    }, 600);
+
+    return () => clearTimeout(minuteur);
+  }, [routines, faits, pret]);
 
   const jour = aujourdhui();
   const etapes = routines[moment];
@@ -72,6 +107,15 @@ export default function Routine() {
     });
   }
 
+  if (!pret && !erreur) {
+    return (
+      <section className="routine">
+        <h1>Ma routine</h1>
+        <p className="routine-vide">Chargement de ta routine…</p>
+      </section>
+    );
+  }
+
   return (
     <section className="routine">
       <h1>Ma routine</h1>
@@ -94,6 +138,8 @@ export default function Routine() {
       <p className="routine-progression">
         {progression === 100 ? "Routine terminée pour aujourd'hui" : `${progression}% fait aujourd'hui`}
       </p>
+
+      {erreur && <p role="alert" style={{ color: "#9b1c1c" }}>{erreur}</p>}
 
       <ul className="routine-liste">
         {etapes.map((e) => (

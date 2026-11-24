@@ -1,0 +1,138 @@
+.auth {
+  --accent: #b784b7;
+  --accent-fonce: #8e5a8e;
+  --fond-doux: #f6eef6;
+  --texte: #3b2f3b;
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: var(--fond-doux);
+  color: var(--texte);
+}
+
+.auth-carte {
+  width: 100%;
+  max-width: 400px;
+  padding: 32px 24px;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 8px 30px rgba(142, 90, 142, 0.15);
+  text-align: left;
+}
+
+.auth-carte h1 {
+  margin: 0 0 4px;
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 32px;
+  color: var(--texte);
+  text-align: center;
+}
+
+.auth-sous-titre {
+  margin: 0 0 24px;
+  text-align: center;
+  color: var(--accent-fonce);
+}
+
+.auth-carte form {
+  display: grid;
+  gap: 16px;
+}
+
+.auth-carte label {
+  display: grid;
+  gap: 6px;
+  font-size: 15px;
+  color: var(--texte);
+}
+
+.auth-carte input {
+  padding: 12px 14px;
+  border: 1px solid var(--accent);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--texte);
+  font-size: 16px;
+}
+
+.auth-carte small {
+  color: var(--accent-fonce);
+}
+
+.auth-erreur {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #fde8e8;
+  color: #9b1c1c;
+  font-size: 14px;
+}
+
+.auth-info {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--fond-doux);
+  color: var(--accent-fonce);
+  font-size: 14px;
+}
+
+.auth-envoyer {
+  padding: 14px;
+  border: none;
+  border-radius: 999px;
+  background: var(--accent-fonce);
+  color: #fff;
+  font-size: 17px;
+  cursor: pointer;
+}
+
+.auth-envoyer:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.auth-bascule {
+  display: block;
+  width: 100%;
+  margin-top: 16px;
+  padding: 8px;
+  border: none;
+  background: transparent;
+  color: var(--accent-fonce);
+  font-size: 15px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.auth-chargement {
+  color: var(--accent-fonce);
+}
+
+.auth-barre {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 16px;
+  background: #f6eef6;
+  color: #3b2f3b;
+  font-size: 13px;
+}
+
+.auth-barre button {
+  padding: 4px 12px;
+  border: 1px solid #8e5a8e;
+  border-radius: 999px;
+  background: transparent;
+  color: #8e5a8e;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.auth :focus-visible,
+.auth-barre :focus-visible {
+  outline: 2px solid var(--accent-fonce, #8e5a8e);
+  outline-offset: 2px;
+}

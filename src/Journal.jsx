@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import "./Journal.css";
 import Recommandations from "./Recommandations";
+import { supabase } from "./supabaseClient";
 
 const ETATS = [
   { valeur: 1, emoji: "😣", label: "Difficile" },
@@ -12,15 +13,6 @@ const ETATS = [
 
 const jourISO = (d = new Date()) => d.toISOString().slice(0, 10);
 
-function charger() {
-  try {
-    const v = localStorage.getItem("bloom-journal");
-    return v ? JSON.parse(v) : {};
-  } catch {
-    return {};
-  }
-}
-
 function formater(iso) {
   return new Date(iso + "T12:00:00").toLocaleDateString("fr-FR", {
     weekday: "long",
@@ -29,36 +21,115 @@ function formater(iso) {
   });
 }
 
+function versEntree(ligne) {
+  return {
+    etat: ligne.etat,
+    sommeil: Number(ligne.sommeil),
+    stress: ligne.stress,
+    boutons: ligne.boutons,
+    note: ligne.note ?? "",
+  };
+}
+
 export default function Journal() {
   const aujourdhui = jourISO();
-  const [entrees, setEntrees] = useState(charger);
+  const [entrees, setEntrees] = useState({});
+  const [chargement, setChargement] = useState(true);
+  const [etat, setEtat] = useState(0);
+  const [sommeil, setSommeil] = useState(7);
+  const [stress, setStress] = useState(2);
+  const [boutons, setBoutons] = useState(false);
+  const [note, setNote] = useState("");
+  const [message, setMessage] = useState("");
+  const [erreur, setErreur] = useState("");
+
   const existante = entrees[aujourdhui];
 
-  const [etat, setEtat] = useState(existante?.etat ?? 0);
-  const [sommeil, setSommeil] = useState(existante?.sommeil ?? 7);
-  const [stress, setStress] = useState(existante?.stress ?? 2);
-  const [boutons, setBoutons] = useState(existante?.boutons ?? false);
-  const [note, setNote] = useState(existante?.note ?? "");
-  const [message, setMessage] = useState("");
-
   useEffect(() => {
-    localStorage.setItem("bloom-journal", JSON.stringify(entrees));
-  }, [entrees]);
+    let actif = true;
 
-  function enregistrer(e) {
+    async function charger() {
+      const { data, error } = await supabase
+        .from("journal_entries")
+        .select("jour, etat, sommeil, stress, boutons, note")
+        .order("jour", { ascending: false });
+
+      if (!actif) return;
+
+      if (error) {
+        setErreur("Impossible de charger ton journal. Vérifie ta connexion.");
+        setChargement(false);
+        return;
+      }
+
+      const liste = {};
+      data.forEach((ligne) => {
+        liste[ligne.jour] = versEntree(ligne);
+      });
+      setEntrees(liste);
+
+      const duJour = liste[aujourdhui];
+      if (duJour) {
+        setEtat(duJour.etat);
+        setSommeil(duJour.sommeil);
+        setStress(duJour.stress);
+        setBoutons(duJour.boutons);
+        setNote(duJour.note);
+      }
+      setChargement(false);
+    }
+
+    charger();
+    return () => {
+      actif = false;
+    };
+  }, [aujourdhui]);
+
+  async function enregistrer(e) {
     e.preventDefault();
+    setMessage("");
+    setErreur("");
+
     if (!etat) {
-      setMessage("Choisis d'abord l'état de ta peau.");
+      setErreur("Choisis d'abord l'état de ta peau.");
       return;
     }
-    setEntrees({
-      ...entrees,
-      [aujourdhui]: { etat, sommeil: Number(sommeil), stress: Number(stress), boutons, note: note.trim() },
-    });
+
+    const { data: sessionData } = await supabase.auth.getSession();
+    const userId = sessionData.session?.user.id;
+    if (!userId) {
+      setErreur("Ta session a expiré. Recharge la page et reconnecte-toi.");
+      return;
+    }
+
+    const entree = {
+      etat,
+      sommeil: Number(sommeil),
+      stress: Number(stress),
+      boutons,
+      note: note.trim(),
+    };
+
+    const { error } = await supabase
+      .from("journal_entries")
+      .upsert({ user_id: userId, jour: aujourdhui, ...entree }, { onConflict: "user_id,jour" });
+
+    if (error) {
+      setErreur("Impossible d'enregistrer : " + error.message);
+      return;
+    }
+
+    setEntrees({ ...entrees, [aujourdhui]: entree });
     setMessage(existante ? "Entrée du jour mise à jour." : "Entrée du jour enregistrée.");
   }
 
-  function supprimer(date) {
+  async function supprimer(date) {
+    setErreur("");
+    const { error } = await supabase.from("journal_entries").delete().eq("jour", date);
+    if (error) {
+      setErreur("Impossible de supprimer : " + error.message);
+      return;
+    }
     const copie = { ...entrees };
     delete copie[date];
     setEntrees(copie);
@@ -122,10 +193,11 @@ export default function Journal() {
           <textarea rows="3" value={note} onChange={(e) => setNote(e.target.value)} />
         </label>
 
-        <button type="submit" className="journal-envoyer">
+        <button type="submit" className="journal-envoyer" disabled={chargement}>
           {existante ? "Mettre à jour" : "Enregistrer"}
         </button>
         {message && <p className="journal-message" role="status">{message}</p>}
+        {erreur && <p role="alert" style={{ color: "#9b1c1c" }}>{erreur}</p>}
       </form>
 
       <h2>14 derniers jours</h2>
@@ -141,7 +213,10 @@ export default function Journal() {
       </div>
 
       <h2>Historique</h2>
-      {dates.length === 0 && <p className="journal-vide">Aucune entrée. Enregistre ta première journée ci-dessus.</p>}
+      {chargement && <p className="journal-vide">Chargement de ton journal…</p>}
+      {!chargement && dates.length === 0 && (
+        <p className="journal-vide">Aucune entrée. Enregistre ta première journée ci-dessus.</p>
+      )}
       <ul className="journal-historique">
         {dates.map((d) => {
           const x = entrees[d];
@@ -162,7 +237,7 @@ export default function Journal() {
         })}
       </ul>
 
-      <Recommandations entrees={entrees} />
+      {!chargement && <Recommandations entrees={entrees} />}
     </section>
   );
 }
